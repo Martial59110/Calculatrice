@@ -11,7 +11,20 @@
        01  WS-A-CLEAN PIC -Z(7)9.99.
        01  WS-RESULT-CLEAN PIC -Z(7)9.99.
        01  WS-RESULT-TEMP-CLEAN PIC -Z(7)9.99. 
-      
+       01  WS-DATEACTU.
+           02  ANACTU       PIC 9(4).
+           02  MOISACTU     PIC 9(2).
+           02  JOURACTU     PIC 9(2).
+       01  WS-DATE-DISPLAY.
+           02 FULL-DISPLAY  PIC X(15).
+       01  WS-FILLER.
+           02 FILLER PIC X VALUE "/".
+
+       01  WS-TEMPSACTU.
+           02  HEUREACTU     PIC 99.
+           02  MINUTEACTU    PIC 99.
+           02  SECONDEACTU    PIC 99.
+       
        
        PROCEDURE DIVISION.
 
@@ -32,12 +45,43 @@
 
            SET WS-RESULT-TEMP TO WS-RESULT.
 
+      *    Prend la date et heure
+           
+           ACCEPT  WS-DATEACTU FROM DATE YYYYMMDD.
+           ACCEPT  WS-TempsActu FROM TIME.
+
+      *    Format européen
+
+           MOVE JOURACTU TO WS-DATE-DISPLAY(1:2).
+           MOVE WS-FILLER TO WS-DATE-DISPLAY(3:1).
+           MOVE MOISACTU TO WS-DATE-DISPLAY(4:2).
+           MOVE WS-FILLER TO WS-DATE-DISPLAY(6:1).
+           MOVE ANACTU TO WS-DATE-DISPLAY(7:4).
+
+      *    Format américain
+
+           MOVE JOURACTU TO WS-DATE-DISPLAY(9:2).
+           MOVE WS-FILLER TO WS-DATE-DISPLAY(8:1).
+           MOVE MOISACTU TO WS-DATE-DISPLAY(6:2).
+           MOVE WS-FILLER TO WS-DATE-DISPLAY(5:1).
+           MOVE ANACTU TO WS-DATE-DISPLAY(1:4).
+
       *    IHM du début
 
+           DISPLAY"                                           "
+           DISPLAY"                                           "
+           DISPLAY"-------------------------------------------"
+           DISPLAY "La date est : " WS-DATE-DISPLAY.
+           DISPLAY "L'heure est " HeureActu ":" MinuteActu ":" 
+           SECONDEACTU .
            DISPLAY "Le résultat actuel est :" WS-RESULT.
+           DISPLAY"-------------------------------------------"
+           DISPLAY"                                           "
+           DISPLAY"                                           "
            DISPLAY "Rentrez un opérateur (+ - / * ^):" 
            SPACE WITH NO ADVANCING ACCEPT WS-OPERATOR. 
-
+           DISPLAY"                                           "
+           DISPLAY"                                           "
       *    Compare l'opérateur choisi pour sauter jusqu'au bon 
       *    paragraphe
 
