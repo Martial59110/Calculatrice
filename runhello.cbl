@@ -4,11 +4,14 @@
        DATA DIVISION.
        WORKING-STORAGE SECTION.
        01  WS-A PIC S9(9)V99.
+       01  WS-B PIC S9(9)V99.
+       01  WS-LOOP PIC 9 VALUE 1.
        01  WS-EXIT PIC A.
        01  WS-OPERATOR PIC X.
        01  WS-RESULT PIC S9(9)V99.
        01  WS-RESULT-TEMP PIC S9(9)V99.
        01  WS-A-CLEAN PIC -Z(7)9.99.
+       01  WS-B-CLEAN PIC -Z(7)9.99.
        01  WS-RESULT-CLEAN PIC -Z(7)9.99.
        01  WS-RESULT-TEMP-CLEAN PIC -Z(7)9.99. 
        01  WS-DATEACTU.
@@ -49,7 +52,7 @@
            
            ACCEPT  WS-DATEACTU FROM DATE YYYYMMDD.
            ACCEPT  WS-TempsActu FROM TIME.
-
+           
       *    Format européen
 
            MOVE JOURACTU TO WS-DATE-DISPLAY(1:2).
@@ -67,7 +70,7 @@
            MOVE ANACTU TO WS-DATE-DISPLAY(1:4).
 
       *    IHM du début
-
+       
            DISPLAY"                                           "
            DISPLAY"                                           "
            DISPLAY"-------------------------------------------"
@@ -75,11 +78,16 @@
            DISPLAY "L'heure est " HeureActu ":" MinuteActu ":" 
            SECONDEACTU .
            DISPLAY "Le résultat actuel est :" WS-RESULT.
-           DISPLAY"-------------------------------------------"
-           DISPLAY"                                           "
-           DISPLAY"                                           "
-           DISPLAY "Rentrez un opérateur (+ - / * ^):" 
+           DISPLAY"-------------------------------------------".
+           DISPLAY"                                           ".
+           DISPLAY"                                           ".
+           IF WS-LOOP = 1
+           DISPLAY "Rentrez un nombre :" 
+           SPACE WITH NO ADVANCING ACCEPT WS-B
+           END-IF.
+           DISPLAY "Rentrez un opérateur (+ - / * ^):"
            SPACE WITH NO ADVANCING ACCEPT WS-OPERATOR. 
+           
            DISPLAY"                                           "
            DISPLAY"                                           "
       *    Compare l'opérateur choisi pour sauter jusqu'au bon 
@@ -113,7 +121,8 @@
        PG-EXIT.
 
       *    Demande à l'utilisateur s'il veut sortir de la calculatrice
-
+           
+           ADD 1 to WS-LOOP.
            DISPLAY"-------------------------------------------"
            DISPLAY "Voulez vous continuer ? (o/n)" SPACE 
            Space with no advancing ACCEPT WS-EXIT
@@ -134,15 +143,25 @@
       *    Paragraphes des diffèrents opérateurs
 
        PG-ADDITION.
-
-           ADD WS-A to WS-RESULT.
+           IF WS-LOOP = 1
+           ADD WS-A to WS-B GIVING WS-RESULT
+           MOVE WS-B TO WS-B-CLEAN
+           ELSE
+           ADD WS-A to WS-RESULT
+           END-IF
            MOVE WS-A TO WS-A-CLEAN.
            MOVE WS-RESULT TO WS-RESULT-CLEAN.
            MOVE WS-RESULT-TEMP TO WS-RESULT-TEMP-CLEAN.
            DISPLAY"-------------------------------------------"
+           IF WS-LOOP = 1
+            DISPLAY FUNCTION TRIM(WS-B-CLEAN)SPACE "+" 
+           SPACE function TRIM(WS-A-CLEAN) SPACE "="
+           SPACE FUNCTION TRIM(WS-RESULT-CLEAN)
+           ELSE
            DISPLAY FUNCTION TRIM(WS-RESULT-TEMP-CLEAN )SPACE "+" 
            SPACE function TRIM(WS-A-CLEAN) SPACE "="
-           SPACE FUNCTION TRIM(WS-RESULT-CLEAN).
+           SPACE FUNCTION TRIM(WS-RESULT-CLEAN)
+           END-IF
            PERFORM PG-EXIT.
 
        PG-SUBTRACT.
